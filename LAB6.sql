@@ -112,8 +112,8 @@ go
 
 -------------------Khi thêm một nhân viên mới thì tự động phân công cho nhân viên làm đề án có MADA là 1.--------------
 create trigger nhanvien3 on NHANVIEN
-after insert 
-as
+instead of insert 
+AS
 begin
 insert into PHANCONG values ((select manv from inserted), 1,2,20)
 end
