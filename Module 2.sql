@@ -133,3 +133,44 @@ group by c.CustomerID
 having COUNT(*)>=all(select COUNT(*)
 					 from Sales.Customer c join Sales.SalesOrderHeader h on c.CustomerID=h.CustomerID
 					 group by c.CustomerID)	
+----cau 4
+--Liệt kê các sản phẩm (ProductID, Name) thuộc mô hình sản phẩm áo dài tay với
+--tên bắt đầu với “Long-Sleeve Logo Jersey”, dùng phép IN và EXISTS, (sử dụng
+--bảng Production.Product và Production.ProductModel	
+select ProductID, Name
+from Production.Product 
+where ProductModelID in (select ProductModelID 
+						 from Production.ProductModel
+						 where Name like 'Long-Sleeve Logo Jersey%')
+
+select ProductID, Name
+from Production.Product p
+where exists (select ProductModelID 
+						 from Production.ProductModel
+						 where Name like 'Long-Sleeve Logo Jersey%' and ProductModelID=p.ProductModelID)
+--cau 5
+--Tìm các mau sản phẩm (ProductModelID) mà giá niêm yết (list price) tối đa
+--cao hơn giá trung bình của tất cả các mô hình.	
+select p.ProductModelID, m.Name, max(ListPrice)
+from Production.ProductModel m join Production.Product p on m.ProductModelID=p.ProductModelID
+group by p.ProductModelID, m.Name
+having max(ListPrice)>=all(select AVG(ListPrice)
+							from Production.ProductModel m join Production.Product p on m.ProductModelID=p.ProductModelID
+							)
+
+--cau 6
+--Liệt kê các sản phẩm gồm các thông tin ProductID, Name, có tổng số lượng đặt
+--hàng >5000 (dùng In, exists)
+select ProductID, Name
+from Production.Product 
+where ProductID in (select ProductID 
+					from Sales.SalesOrderDetail
+					group by ProductID
+					having SUM(OrderQty)>5000)
+select ProductID, Name
+from Production.Product p
+where exists (select ProductID 
+					from Sales.SalesOrderDetail
+					where ProductID=p.ProductID
+					group by ProductID
+					having SUM(OrderQty)>5000)
