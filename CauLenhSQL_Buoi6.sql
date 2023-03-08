@@ -90,4 +90,19 @@ SELECT PHANCONG.MADA
 	WHERE NHANVIEN.MANV = PHONGBAN.TRPHG AND
 		  PHONGBAN.MAPHG = DEAN.PHONG AND
 		  NHANVIEN.HONV = N'Lê'
+-----14. Để liệt kê danh sách các đề án mà cả hai nhân viên Đinh Bá Tiến và Trần Thanh Tâm cùng làm
+SELECT DISTINCT d.MADA
+FROM DEAN d, PHANCONG pc1, PHANCONG pc2, NHANVIEN nv1, NHANVIEN nv2
+WHERE d.MADA = pc1.MADA AND pc1.MADA = pc2.MADA AND pc1.MA_NVIEN = nv1.MANV AND pc2.MA_NVIEN = nv2.MANV
+AND nv1.HONV + ''+ nv1.TENLOT = 'Đinh Bá Tiến' AND nv2.HONV + ''+ nv2.TENLOT = 'Trần Thanh Tâm';
 
+-----15. Để lấy danh sách những nhân viên (bao gồm mã nhân viên, họ tên, phái) làm việc trong mọi đề án của công ty
+SELECT pc.MA_NVIEN, nv.HONV, nv.PHAI
+FROM PHANCONG pc, NHANVIEN nv
+WHERE pc.MA_NVIEN = nv.MANV
+AND NOT EXISTS(SELECT d.MADA
+               FROM DEAN d 
+               WHERE NOT EXISTS(SELECT pc.MADA
+                                FROM PHANCONG pc 
+                                WHERE pc.MADA = d.MADA
+                                AND pc.MA_NVIEN = nv.MANV));
